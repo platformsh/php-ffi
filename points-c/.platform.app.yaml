@@ -1,0 +1,29 @@
+# The name of this app. Must be unique within a project.
+name: c
+
+type: php:7.4
+
+# FFI is an extension. It must be explicitly enabled.
+runtime:
+    extensions:
+        - ffi
+
+# Setting a variable in the `php` namespace makes it an ini setting. This block
+# tells PHP-FPM to run `preloader.php` on startup. It's the same file we saw before.
+variables:
+    php:
+        opcache.preload: 'preloader.php'
+
+hooks:
+    build: |
+        # Using the `Makefile`, compile the `points.so` file.
+        set -e
+        make points.so
+
+web:
+    locations:
+        "/":
+            root: "web"
+            passthru: "/index.php"
+
+disk: 128

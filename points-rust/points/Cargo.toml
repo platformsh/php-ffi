@@ -1,0 +1,15 @@
+[package]
+name = "points"
+version = "0.1.0"
+authors = ["Larry Garfield"]
+description = "A demonstration library to show how to build Rust for use with PHP-FFI."
+edition = "2018"
+build = "build.rs"
+
+[dependencies]
+
+[build-dependencies]
+cbindgen = "^0.6.0"
+
+[lib]
+crate-type = ["cdylib", "lib"]

@@ -1,0 +1,50 @@
+# The name of this app. Must be unique within a project.
+name: rust
+
+type: php:7.4
+
+# FFI is an extension. It must be explicitly enabled.
+runtime:
+    extensions:
+        - ffi
+
+# Setting a variable in the `php` namespace makes it an ini setting. This block
+# tells PHP-FPM to run `preloader.php` on startup. It's the same file we saw before.
+variables:
+    php:
+        opcache.preload: 'preloader.php'
+
+hooks:
+    build: |
+        set -e
+
+        cd $PLATFORM_CACHE_DIR
+        mkdir -p rust
+        # Tell Rust to install to the build cache, not to the home dir.
+        export CARGO_HOME=$PLATFORM_CACHE_DIR/rust/.cargo
+        export RUSTUP_HOME=$PLATFORM_CACHE_DIR/rust
+
+        # Copy the latest source into the build cache directory.
+        cd rust
+        rsync -r $PLATFORM_APP_DIR/points/ .
+        # Only install Rust if it's not already installed.
+        if [ ! -f rustup.sh ]; then
+            curl https://sh.rustup.rs > rustup.sh
+            sh rustup.sh -y --default-toolchain stable
+        fi
+        export PATH=/mnt/cache/app/rust/.cargo/bin:$PATH
+
+        # Build the library.
+        cargo build --release
+
+        # Copy the build cache result back to the application directory.
+        cd $PLATFORM_APP_DIR/points
+        rsync -r $PLATFORM_CACHE_DIR/rust/ .
+
+web:
+    locations:
+        "/":
+            root: "web"
+            passthru: "/index.php"
+
+disk: 128
