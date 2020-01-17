@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "./points.h"
 
-void main() {
+int main() {
 
     struct point p1;
     struct point p2;
@@ -12,4 +12,6 @@ void main() {
     p2.y = 9;
 
     printf("Distance is: %f\n\n", distance(p1, p2));
+
+    return 0;
 }
